@@ -20,9 +20,13 @@ class HazkeyServer: SocketManagerDelegate {
         self.uid = getuid()
         self.socketPath = "\(runtimeDir)/hazkey-server.\(uid).sock"
 
-        let ggmlBackendDirectory =
+        var ggmlBackendDirectory =
             ProcessInfo.processInfo.environment["GGML_BACKEND_DIR"]
-            ?? (systemLibraryPath + "/libllama/backends")
+            ?? (systemLibraryPath + "/libllama/backends/")
+        // trailing slash is important
+        if !ggmlBackendDirectory.hasSuffix("/") {
+            ggmlBackendDirectory.append("/")
+        }
         loadGGMLBackends(from: ggmlBackendDirectory)
 
         ggmlBackendDevices = enumerateGGMLBackendDevices()
