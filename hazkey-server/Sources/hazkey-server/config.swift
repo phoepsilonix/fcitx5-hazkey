@@ -195,7 +195,7 @@ class HazkeyServerConfig {
             $0.fileHashes = []
             $0.zenzaiModelAvailable = zenzaiModelPath != nil
             $0.zenzaiModelPath = zenzaiModelPath?.path ?? ""
-            $0.xdgConfigHomePath = Self.getConfigDirectory().absoluteString
+            $0.xdgConfigHomePath = Self.getConfigDirectory().path
             $0.availableKeymaps = keymaps
             $0.availableTables = inputTables
             $0.availableZenzaiBackendDevices = zenzaiDevices

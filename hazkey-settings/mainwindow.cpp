@@ -342,6 +342,24 @@ bool MainWindow::loadCurrentConfig(bool fetchConfig) {
     // Load keymap configuration
     loadKeymaps();
 
+    // Update XDG_CONFIG_HOME in note labels
+    QString xdgConfigHome =
+        QString::fromStdString(currentConfig_.xdg_config_home_path());
+    if (!xdgConfigHome.isEmpty()) {
+        // Remove trailing slash to avoid double slashes
+        if (xdgConfigHome.endsWith('/')) {
+            xdgConfigHome.chop(1);
+        }
+
+        QString keymapNoteText = ui_->keymapAdvancedNote->text();
+        keymapNoteText.replace("$XDG_CONFIG_HOME/hazkey", xdgConfigHome);
+        ui_->keymapAdvancedNote->setText(keymapNoteText);
+
+        QString inputTableNoteText = ui_->inputTableAdvancedNote->text();
+        inputTableNoteText.replace("$XDG_CONFIG_HOME/hazkey", xdgConfigHome);
+        ui_->inputTableAdvancedNote->setText(inputTableNoteText);
+    }
+
     // Sync Advanced tab settings to Basic tab
     syncAdvancedToBasic();
 
