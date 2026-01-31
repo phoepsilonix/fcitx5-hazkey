@@ -26,20 +26,22 @@ class HazkeyServerState {
         self.currentTableName = UUID().uuidString
         serverConfig.loadInputTable(tableName: currentTableName)
 
-        // Create user data directories (history data, dictionary)
-        var userDataDir: URL {
-            FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-                .appendingPathComponent("hazkey", isDirectory: true)
-        }
+        // Create user state directories (history data)
         do {
             try FileManager.default.createDirectory(
-                at: userDataDir.appendingPathComponent(
+                at: HazkeyServerConfig.getStateDirectory().appendingPathComponent(
                     "memory", isDirectory: true), withIntermediateDirectories: true)
+        } catch {
+            NSLog("Failed to create user state directory")
+        }
+
+        // Create user cache directories (user dictionary)
+        do {
             try FileManager.default.createDirectory(
-                at: userDataDir.appendingPathComponent(
+                at: HazkeyServerConfig.getCacheDirectory().appendingPathComponent(
                     "shared", isDirectory: true), withIntermediateDirectories: true)
         } catch {
-            NSLog("Failed to create user data directoryes")
+            NSLog("Failed to create user cache directory")
         }
 
         // Initialize base convert options

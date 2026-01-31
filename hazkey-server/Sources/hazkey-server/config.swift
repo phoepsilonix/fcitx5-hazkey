@@ -74,12 +74,10 @@ class HazkeyServerConfig {
 
             let systemZenzaiModelPath = URL(fileURLWithPath: systemResourcePath)
                 .appendingPathComponent("zenzai.gguf", isDirectory: false)
-            let userZenzaiModelPath = FileManager.default.urls(
-                for: .applicationSupportDirectory, in: .userDomainMask
-            ).first!
-            .appendingPathComponent("hazkey", isDirectory: true)
-            .appendingPathComponent("zenzai", isDirectory: true)
-            .appendingPathComponent("zenzai.gguf", isDirectory: false)
+            let userZenzaiModelPath = HazkeyServerConfig.getDataDirectory()
+                .appendingPathComponent("hazkey", isDirectory: true)
+                .appendingPathComponent("zenzai", isDirectory: true)
+                .appendingPathComponent("zenzai.gguf", isDirectory: false)
 
             if let envPath = ProcessInfo.processInfo.environment["HAZKEY_ZENZAI_MODEL"],
                 fileManager.fileExists(atPath: envPath)
@@ -374,6 +372,44 @@ class HazkeyServerConfig {
         return homeDir.appendingPathComponent(".config").appendingPathComponent("hazkey")
     }
 
+    static func getDataDirectory() -> URL {
+        if let xdgDataHome = ProcessInfo.processInfo.environment["XDG_DATA_HOME"],
+            !xdgDataHome.isEmpty
+        {
+            return URL(fileURLWithPath: xdgDataHome).appendingPathComponent("hazkey")
+        }
+
+        // Fallback to ~/.local/share/hazkey
+        let homeDir = FileManager.default.homeDirectoryForCurrentUser
+        return homeDir.appendingPathComponent(".local").appendingPathComponent("share")
+            .appendingPathComponent("hazkey")
+    }
+
+    static func getStateDirectory() -> URL {
+        if let xdgStateHome = ProcessInfo.processInfo.environment["XDG_STATE_HOME"],
+            !xdgStateHome.isEmpty
+        {
+            return URL(fileURLWithPath: xdgStateHome).appendingPathComponent("hazkey")
+        }
+
+        // Fallback to ~/.local/state/hazkey
+        let homeDir = FileManager.default.homeDirectoryForCurrentUser
+        return homeDir.appendingPathComponent(".local").appendingPathComponent("state")
+            .appendingPathComponent("hazkey")
+    }
+
+    static func getCacheDirectory() -> URL {
+        if let xdgCacheHome = ProcessInfo.processInfo.environment["XDG_CACHE_HOME"],
+            !xdgCacheHome.isEmpty
+        {
+            return URL(fileURLWithPath: xdgCacheHome).appendingPathComponent("hazkey")
+        }
+
+        // Fallback to ~/.cache/hazkey
+        let homeDir = FileManager.default.homeDirectoryForCurrentUser
+        return homeDir.appendingPathComponent(".cache").appendingPathComponent("hazkey")
+    }
+
     func genZenzaiMode(leftContext: String)
         -> ConvertRequestOptions.ZenzaiMode
     {
@@ -404,11 +440,6 @@ class HazkeyServerConfig {
     }
 
     func genBaseConvertRequestOptions() -> ConvertRequestOptions {
-        var userDataDir: URL {
-            FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-                .appendingPathComponent("hazkey", isDirectory: true)
-        }
-
         let learningType =
             switch (currentProfile.useInputHistory, currentProfile.stopStoreNewHistory) {
             case (true, false):
@@ -447,9 +478,9 @@ class HazkeyServerConfig {
             learningType: learningType,
             maxMemoryCount: 65536,
             shouldResetMemory: false,
-            memoryDirectoryURL: userDataDir.appendingPathComponent(
+            memoryDirectoryURL: HazkeyServerConfig.getStateDirectory().appendingPathComponent(
                 "memory", isDirectory: true),
-            sharedContainerURL: userDataDir.appendingPathComponent(
+            sharedContainerURL: HazkeyServerConfig.getCacheDirectory().appendingPathComponent(
                 "shared", isDirectory: true),
             textReplacer: .empty,
             specialCandidateProviders: specialCandidateProviders,
@@ -564,12 +595,10 @@ class HazkeyServerConfig {
 
         let systemZenzaiModelPath = URL(fileURLWithPath: systemResourcePath)
             .appendingPathComponent("zenzai.gguf", isDirectory: false)
-        let userZenzaiModelPath = FileManager.default.urls(
-            for: .applicationSupportDirectory, in: .userDomainMask
-        ).first!
-        .appendingPathComponent("hazkey", isDirectory: true)
-        .appendingPathComponent("zenzai", isDirectory: true)
-        .appendingPathComponent("zenzai.gguf", isDirectory: false)
+        let userZenzaiModelPath = HazkeyServerConfig.getDataDirectory()
+            .appendingPathComponent("hazkey", isDirectory: true)
+            .appendingPathComponent("zenzai", isDirectory: true)
+            .appendingPathComponent("zenzai.gguf", isDirectory: false)
 
         zenzaiModelPath = {
             if ggmlBackendDevices.count == 0 {
