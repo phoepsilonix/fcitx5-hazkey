@@ -1233,20 +1233,12 @@ void MainWindow::showBasicModeWarning() {
         ui_->inputStyleSimpleModeScrollAreaContents->layout());
 
     if (basicTabLayout) {
-        QWidget* warningWidget = new QWidget();
-        warningWidget->setStyleSheet("background-color: yellow; padding: 5px;");
-        QHBoxLayout* warningLayout = new QHBoxLayout(warningWidget);
-
-        QLabel* warningLabel = new QLabel(tr(
-            "<b>Warning:</b> Current settings can only be edited in Advanced "
-            "mode."));
-        warningLabel->setWordWrap(true);
-        warningLayout->addWidget(warningLabel);
-
-        QPushButton* resetButton = new QPushButton(tr("Reset Input Style"));
-        connect(resetButton, &QPushButton::clicked, this,
-                &MainWindow::resetInputStyleToDefault);
-        warningLayout->addWidget(resetButton);
+        QWidget* warningWidget =
+            createWarningWidget(tr("<b>Warning:</b> Current settings can only "
+                                   "be edited in Advanced "
+                                   "mode."),
+                                "yellow", tr("Reset Input Style"),
+                                [this]() { resetInputStyleToDefault(); });
 
         basicTabLayout->insertWidget(0, warningWidget);
 
@@ -1783,6 +1775,7 @@ QWidget* MainWindow::createWarningWidget(const QString& message,
 
     QLabel* warningLabel = new QLabel(message);
     warningLabel->setWordWrap(true);
+    warningLabel->setStyleSheet("color: black;");
     warningLayout->addWidget(warningLabel);
 
     if (!buttonText.isEmpty() && buttonCallback) {
