@@ -16,8 +16,8 @@ class HazkeyServerState {
     var currentTableName: String
     var baseConvertRequestOptions: ConvertRequestOptions
 
-    init(ggmlBackendDevices: [GGMLBackendDevice]) {
-        self.serverConfig = HazkeyServerConfig(ggmlBackendDevices: ggmlBackendDevices)
+    init() {
+        self.serverConfig = HazkeyServerConfig()
 
         self.converter = KanaKanjiConverter.init(dictionaryURL: serverConfig.dictionaryPath)
 

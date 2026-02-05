@@ -203,7 +203,7 @@ std::optional<hazkey::ResponseEnvelope> HazkeyServerConnector::transact(
     if (!writeAll(sock_, &writeLen, 4)) {
         FCITX_INFO()
             << "Failed to communicate with server while writing data length. "
-               "restarting hazkey-server...";
+               "reconnecting to hazkey-server...";
         close(sock_);
         sock_ = -1;
         connect_server();
@@ -213,7 +213,7 @@ std::optional<hazkey::ResponseEnvelope> HazkeyServerConnector::transact(
     // write data
     if (!writeAll(sock_, msg.c_str(), msg.size())) {
         FCITX_INFO() << "Failed to communicate with server while writing data. "
-                        "restarting hazkey-server...";
+                        "reconnecting to hazkey-server...";
         close(sock_);
         sock_ = -1;
         connect_server();

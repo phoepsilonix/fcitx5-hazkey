@@ -54,8 +54,6 @@ class ProcessManager {
                     }
                 }
             }
-            try? FileManager.default.removeItem(atPath: pidFilePath)
-            try? FileManager.default.removeItem(atPath: infoFilePath)
         }
     }
 

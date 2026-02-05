@@ -6,8 +6,6 @@ class HazkeyServer: SocketManagerDelegate {
     private let processManager: ProcessManager
     private let socketManager: SocketManager
     private let protocolHandler: ProtocolHandler
-    private let llamaAvailable: Bool
-    private let ggmlBackendDevices: [GGMLBackendDevice]
     private let state: HazkeyServerState
 
     private let runtimeDir: String
@@ -20,31 +18,13 @@ class HazkeyServer: SocketManagerDelegate {
         self.uid = getuid()
         self.socketPath = "\(runtimeDir)/hazkey-server.\(uid).sock"
 
-        var ggmlBackendDirectory =
-            ProcessInfo.processInfo.environment["GGML_BACKEND_DIR"]
-            ?? (systemLibraryPath + "/libllama/backends/")
-        // trailing slash is important
-        if !ggmlBackendDirectory.hasSuffix("/") {
-            ggmlBackendDirectory.append("/")
-        }
-        loadGGMLBackends(from: ggmlBackendDirectory)
-
-        ggmlBackendDevices = enumerateGGMLBackendDevices()
-        #if DEBUG
-            for device in ggmlBackendDevices {
-                NSLog(
-                    "GGML Backend Device: \(device.name), Type: \(device.type), Description: \(device.description)"
-                )
-            }
-        #endif
-        self.llamaAvailable = ggmlBackendDevices.count > 0
-
-        // Initialize server state
-        self.state = HazkeyServerState(ggmlBackendDevices: ggmlBackendDevices)
-
         // Initialize managers
         self.processManager = ProcessManager()
         self.socketManager = SocketManager(socketPath: socketPath)
+
+        // Initialize server state
+        self.state = HazkeyServerState()
+
         self.protocolHandler = ProtocolHandler(state: state)
 
         // Set delegate

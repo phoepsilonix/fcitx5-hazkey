@@ -38,9 +38,9 @@ class HazkeyServerConfig {
     let dictionaryPath: URL
     var zenzaiAvailable: Bool
     var zenzaiModelPath: URL?
-    let ggmlBackendDevices: [GGMLBackendDevice]
+    var ggmlBackendDevices: [GGMLBackendDevice]
 
-    init(ggmlBackendDevices: [GGMLBackendDevice]) {
+    init() {
         do {
             profiles = try Self.loadConfig()
         } catch {
@@ -66,32 +66,8 @@ class HazkeyServerConfig {
             }
         }()
 
-        // set zenzai model path
-        zenzaiModelPath = {
-            if ggmlBackendDevices.count == 0 {
-                return nil
-            }
-
-            let systemZenzaiModelPath = URL(fileURLWithPath: systemResourcePath)
-                .appendingPathComponent("zenzai.gguf", isDirectory: false)
-            let userZenzaiModelPath = HazkeyServerConfig.getDataDirectory()
-                .appendingPathComponent("zenzai", isDirectory: true)
-                .appendingPathComponent("zenzai.gguf", isDirectory: false)
-
-            if let envPath = ProcessInfo.processInfo.environment["HAZKEY_ZENZAI_MODEL"],
-                fileManager.fileExists(atPath: envPath)
-            {
-                return URL(filePath: envPath)
-            } else if fileManager.fileExists(atPath: userZenzaiModelPath.path) {
-                return userZenzaiModelPath
-            } else if fileManager.fileExists(atPath: systemZenzaiModelPath.path) {
-                return systemZenzaiModelPath
-            } else {
-                return nil
-            }
-        }()
-
-        self.ggmlBackendDevices = ggmlBackendDevices
+        self.ggmlBackendDevices = getZenzaiDevices()
+        zenzaiModelPath = if ggmlBackendDevices.count <= 0 { nil } else { getZenzaiModelPath() }
         self.zenzaiAvailable = (ggmlBackendDevices.count > 0) && (zenzaiModelPath != nil)
     }
 
@@ -590,32 +566,52 @@ class HazkeyServerConfig {
     }
 
     func reloadZenzaiModel() {
-        let fileManager = FileManager()
-
-        let systemZenzaiModelPath = URL(fileURLWithPath: systemResourcePath)
-            .appendingPathComponent("zenzai.gguf", isDirectory: false)
-        let userZenzaiModelPath = HazkeyServerConfig.getDataDirectory()
-            .appendingPathComponent("zenzai", isDirectory: true)
-            .appendingPathComponent("zenzai.gguf", isDirectory: false)
-
-        zenzaiModelPath = {
-            if ggmlBackendDevices.count == 0 {
-                return nil
-            }
-
-            if let envPath = ProcessInfo.processInfo.environment["HAZKEY_ZENZAI_MODEL"],
-                fileManager.fileExists(atPath: envPath)
-            {
-                return URL(filePath: envPath)
-            } else if fileManager.fileExists(atPath: userZenzaiModelPath.path) {
-                return userZenzaiModelPath
-            } else if fileManager.fileExists(atPath: systemZenzaiModelPath.path) {
-                return systemZenzaiModelPath
-            } else {
-                return nil
-            }
-        }()
-
-        zenzaiAvailable = (ggmlBackendDevices.count > 0) && (zenzaiModelPath != nil)
+        zenzaiModelPath = if ggmlBackendDevices.count <= 0 { nil } else { getZenzaiModelPath() }
+        self.zenzaiAvailable = (ggmlBackendDevices.count > 0) && (zenzaiModelPath != nil)
     }
+}
+
+func getZenzaiDevices() -> [GGMLBackendDevice] {
+    var ggmlBackendDirectory =
+        ProcessInfo.processInfo.environment["GGML_BACKEND_DIR"]
+        ?? (systemLibraryPath + "/libllama/backends/")
+    // trailing slash is important
+    if !ggmlBackendDirectory.hasSuffix("/") {
+        ggmlBackendDirectory.append("/")
+    }
+    loadGGMLBackends(from: ggmlBackendDirectory)
+
+    let backendDevices = enumerateGGMLBackendDevices()
+    #if DEBUG
+        for device in backendDevices {
+            NSLog(
+                "GGML Backend Device: \(device.name), Type: \(device.type), Description: \(device.description)"
+            )
+        }
+    #endif
+    return backendDevices
+}
+
+func getZenzaiModelPath() -> URL? {
+    let systemZenzaiModelPath = URL(fileURLWithPath: systemResourcePath)
+        .appendingPathComponent("zenzai.gguf", isDirectory: false)
+    let userZenzaiModelPath = HazkeyServerConfig.getDataDirectory()
+        .appendingPathComponent("zenzai", isDirectory: true)
+        .appendingPathComponent("zenzai.gguf", isDirectory: false)
+
+    let paths: [URL] = [
+        ProcessInfo.processInfo.environment["HAZKEY_ZENZAI_MODEL"].map { URL(filePath: $0) },
+        userZenzaiModelPath,
+        systemZenzaiModelPath,
+    ].compactMap { $0 }
+
+    for url in paths {
+        if let values = try? url.resourceValues(forKeys: [.isDirectoryKey]),
+            values.isDirectory == false
+        {
+            NSLog(url.path)
+            return url
+        }
+    }
+    return nil
 }

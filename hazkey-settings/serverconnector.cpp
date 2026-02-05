@@ -133,7 +133,7 @@ int ServerConnector::create_connection() {
             }
         }
         close(sock);
-        QProcess::startDetached("hazkey-server", {"-r"});
+        QProcess::startDetached("hazkey-server");
         std::this_thread::sleep_for(
             std::chrono::milliseconds(RETRY_INTERVAL_MS));
     }
