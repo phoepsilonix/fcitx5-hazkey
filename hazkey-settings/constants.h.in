@@ -1,0 +1,6 @@
+#ifndef CONSTANTS_H
+#define CONSTANTS_H
+
+const char* HAZKEY_VERSION_STR = "@PROJECT_VERSION@";
+
+#endif

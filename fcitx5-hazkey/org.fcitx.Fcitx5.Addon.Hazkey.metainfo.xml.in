@@ -16,26 +16,8 @@
   <url type="bugtracker">https://github.com/7ka-Hiira/fcitx5-hazkey/issues</url>
   <url type="vcs-browser">https://github.com/7ka-Hiira/fcitx5-hazkey</url>
   <releases>
-    <release version="0.0.9" date="2025-05-18">
-    <url type="details">https://github.com/7ka-Hiira/fcitx5-hazkey/releases/tag/0.0.9</url>
-      <description>
-        <p>0.0.9 Release note</p>
-        <ul>
-          <li>Update converter</li>
-          <li>Update zenzai model to v3</li>
-        </ul>
-      </description>
-    </release>
-    <release version="0.2.0" date="2025-11-09">
-    <url type="details">https://github.com/7ka-Hiira/fcitx5-hazkey/releases/tag/0.2.0</url>
-      <description>
-        <p>0.2.0 Release note</p>
-        <ul>
-          <li>Major structural changes</li>
-          <li>New settings screens and items</li>
-          <li>Improved performance</li>
-        </ul>
-      </description>
-    </release>
+    <release version="0.2.1" date="2026-02-06"/>
+    <release version="0.2.0" date="2025-11-09"/>
+    <release version="0.0.9" date="2025-05-18"/>
   </releases>
 </component>

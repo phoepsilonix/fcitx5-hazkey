@@ -7,7 +7,7 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
         "To clean up, remove CMakeCache.txt and CMakeFiles/ directory.")
 endif()
 
-project(hazkey-settings VERSION 0.2.0 LANGUAGES CXX)
+project(hazkey-settings VERSION 0.2.1 LANGUAGES CXX)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
@@ -20,6 +20,8 @@ find_package(Qt6 REQUIRED COMPONENTS Widgets LinguistTools Network)
 find_package(Protobuf REQUIRED)
 
 set(TS_FILES hazkey-settings_ja_JP.ts)
+
+configure_file(constants.h.in constants.h @ONLY)
 
 # Proto files
 set(PROTO_FILES

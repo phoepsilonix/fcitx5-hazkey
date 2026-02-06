@@ -27,6 +27,8 @@
 #include "./ui_mainwindow.h"
 #include "config_definitions.h"
 #include "config_macros.h"
+#include "constants.h"
+#include "constants.h.in"
 #include "serverconnector.h"
 
 MainWindow::MainWindow(QWidget* parent)
@@ -41,6 +43,14 @@ MainWindow::MainWindow(QWidget* parent)
 
     // Expand table settings mode change tab
     ui_->inputTableConfigModeTabWidget->tabBar()->setExpanding(true);
+
+    // Set version
+    QString hazkeyVersionText =
+        QString(
+            "<html><head/><body><p><span "
+            "style=\"font-size:18pt\">%1</span></p></body></html>")
+            .arg(HAZKEY_VERSION_STR);
+    ui_->aboutHazkeyTitleVersionText->setText(hazkeyVersionText);
 
     // Connect UI signals
     connectSignals();
